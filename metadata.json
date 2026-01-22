@@ -1,0 +1,7 @@
+{
+  "name": "Friuli-Venezia Giulia Luxury Portal",
+  "description": "An ultra-premium travel portal for the FVG region of Italy, featuring luxury destinations, a culinary AI assistant, and a concierge service.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
