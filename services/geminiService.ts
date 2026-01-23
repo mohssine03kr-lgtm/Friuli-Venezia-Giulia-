@@ -4,28 +4,31 @@ import { GoogleGenAI } from "@google/genai";
 const API_KEY = process.env.API_KEY || "";
 
 export const getGeminiClient = () => {
-  if (!API_KEY) {
-    console.error("API_KEY is missing. AI features will not work.");
-  }
   return new GoogleGenAI({ apiKey: API_KEY });
 };
 
-export const chatWithConcierge = async (message: string, history: { role: 'user' | 'model', content: string }[]) => {
+export const chatWithConcierge = async (message: string) => {
   const ai = getGeminiClient();
-  const chat = ai.chats.create({
+  const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
+    contents: message,
     config: {
-      systemInstruction: `You are the AI Concierge for the 'Friuli-Venezia Giulia Luxury Portal'. 
-      Your tone is sophisticated, welcoming, and highly knowledgeable about Italy's FVG region. 
-      You help users with luxury travel recommendations, restaurant bookings, and cultural insights. 
+      tools: [{ googleSearch: {} }],
+      systemInstruction: `You are the AI Concierge for 'Friuli-Venezia Giulia Luxury Portal'. 
+      Your tone is sophisticated, welcoming, and expert. 
+      You help users with luxury travel, restaurant bookings (e.g. Harry's Piccolo, Agli Amici), and cultural insights (Barcolana, Mittelfest). 
+      Use Google Search to find real-time events, weather, or current luxury availability in the FVG region. 
       Keep responses elegant and concise.`,
     },
   });
-
-  // Re-creating chat state is simpler for this POC than full state sync
-  // In a real app, we'd pass history to the startChat method
-  const response = await chat.sendMessage({ message });
-  return response.text;
+  
+  return {
+    text: response.text,
+    sources: response.candidates?.[0]?.groundingMetadata?.groundingChunks?.map((chunk: any) => ({
+      title: chunk.web?.title,
+      uri: chunk.web?.uri
+    })).filter((item: any) => item.title && item.uri) || []
+  };
 };
 
 export const getCulinaryRecipe = async (dishName: string) => {
@@ -33,8 +36,8 @@ export const getCulinaryRecipe = async (dishName: string) => {
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: `Give me a gourmet recipe for the traditional Friuli-Venezia Giulia dish: ${dishName}. 
-    Include high-end plating suggestions and wine pairings (specifically local FVG wines like Friulano or Ribolla Gialla). 
-    Format the response in clear Markdown.`,
+    Include high-end plating suggestions and wine pairings (specifically local FVG wines like Friulano, Ribolla Gialla, or Vitovska). 
+    Format the response in clear Markdown with bold headers and bullet points.`,
     config: {
       systemInstruction: "You are a Michelin-star chef specialized in Friuli-Venezia Giulia's unique gastronomy.",
     },
