@@ -8,6 +8,7 @@ import ConciergeOrb from './components/conciergeorb';
 import Home from './pages/home';
 import Destinations from './pages/destinations';
 import Gastronomy from './pages/gastronomy';
+import Gallery from './pages/gallery';
 import Events from './pages/events';
 
 // Wrapper for page transitions
@@ -39,6 +40,7 @@ const App: React.FC = () => {
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
             <Route path="/destinations" element={<PageWrapper><Destinations /></PageWrapper>} />
             <Route path="/gastronomy" element={<PageWrapper><Gastronomy /></PageWrapper>} />
+            <Route path="/gallery" element={<PageWrapper><Gallery /></PageWrapper>} />
             <Route path="/events" element={<PageWrapper><Events /></PageWrapper>} />
           </Routes>
         </main>

@@ -44,3 +44,25 @@ export const getCulinaryRecipe = async (dishName: string) => {
   });
   return response.text;
 };
+
+export const generateGalleryImage = async (prompt: string, aspectRatio: "1:1" | "16:9" | "4:3" = "1:1") => {
+  const ai = getGeminiClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: {
+      parts: [{ text: `A luxury travel scene in Friuli-Venezia Giulia: ${prompt}. Elegant, high-end, high-resolution, professional photography style.` }],
+    },
+    config: {
+      imageConfig: {
+        aspectRatio: aspectRatio,
+      },
+    },
+  });
+
+  for (const part of response.candidates[0].content.parts) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    }
+  }
+  throw new Error("No image data returned from model");
+};

@@ -1,14 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FVG Luxury Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friuli-Venezia Giulia Luxury Portal</title>
     <style>
         :root {
             --deep-sea-teal: #002B2B;
@@ -16,47 +11,20 @@
             --golden-prosecco: #C5A059;
         }
         body {
+            margin: 0;
             background-color: var(--deep-sea-teal);
             color: var(--alpine-white);
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
         }
-        h1, h2, h3, .serif {
-            font-family: 'Playfair Display', serif;
-        }
-        /* Glassmorphism utility */
         .glass {
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px border rgba(255, 255, 255, 0.1);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--deep-sea-teal);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--golden-prosecco);
-            border-radius: 10px;
+            backdrop-filter: blur(10px);
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.29.0",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0"
-  }
-}
-</script>
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
