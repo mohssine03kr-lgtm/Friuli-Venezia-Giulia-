@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { generateGalleryImage } from '../services/geminiService';
 
 interface GeneratedImage {
@@ -10,11 +9,13 @@ interface GeneratedImage {
   size: string;
 }
 
-// Fixed declaration conflict for 'aistudio' on window object by removing local interface
-// and relying on the pre-configured environment-provided definition.
-
 // Using local aliases with any type to bypass strict property check errors for framer-motion props
 const MotionDiv = motion.div as any;
+
+const ASSET_LIBRARY = [
+  { fileName: 'interno-elegante-fvg.jpg', caption: 'Un ambiente raffinato per i tuoi momenti speciali.', keywords: 'Ristorante elegante, Friuli, Design' },
+  { fileName: 'caffe-storico-trieste.jpg', caption: "L'aroma del vero caffè nel cuore della città.", keywords: 'Caffè Storico, Trieste, Breakfast' },
+];
 
 const Gallery: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -23,6 +24,7 @@ const Gallery: React.FC = () => {
   const [aspectRatio, setAspectRatio] = useState<"1:1" | "16:9" | "4:3">("1:1");
   const [imageSize, setImageSize] = useState<"1K" | "2K" | "4K">("1K");
   const [hasKey, setHasKey] = useState<boolean | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     checkApiKey();
@@ -30,7 +32,6 @@ const Gallery: React.FC = () => {
 
   const checkApiKey = async () => {
     try {
-      // Using type casting to access global aistudio to avoid strict type mismatch errors
       const selected = await (window as any).aistudio.hasSelectedApiKey();
       setHasKey(selected);
     } catch (e) {
@@ -39,14 +40,20 @@ const Gallery: React.FC = () => {
   };
 
   const handleSelectKey = async () => {
-    // Using type casting to access global aistudio to avoid strict type mismatch errors
-    await (window as any).aistudio.openSelectKey();
-    setHasKey(true); // Assume success per instructions
+    try {
+      await (window as any).aistudio.openSelectKey();
+      // Assume success after triggering the dialog to avoid race conditions
+      setHasKey(true);
+      setErrorMessage(null);
+    } catch (e) {
+      console.error("Failed to open key selector", e);
+    }
   };
 
   const handleGenerate = async () => {
     if (!prompt.trim() || isLoading) return;
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       const imageUrl = await generateGalleryImage(prompt, aspectRatio, imageSize);
       setImages(prev => [{
@@ -58,9 +65,23 @@ const Gallery: React.FC = () => {
       setPrompt('');
     } catch (error: any) {
       console.error("Image generation failed", error);
-      // Handle "Requested entity was not found" error by prompting for key re-selection
-      if (error?.message?.includes("Requested entity was not found")) {
-        handleSelectKey();
+      
+      // Attempt to extract error string from potential response structures
+      const errorStr = typeof error === 'string' ? error : (error?.message || JSON.stringify(error));
+      
+      // Specific check for 403 (Permission Denied) or 404 (Not Found)
+      // These models require a PAID project key. If the key is invalid or doesn't have permissions,
+      // we reset the state to force the user to select a valid key.
+      if (
+        errorStr.includes("PERMISSION_DENIED") || 
+        errorStr.includes("403") || 
+        errorStr.includes("Requested entity was not found") ||
+        errorStr.includes("does not have permission")
+      ) {
+        setErrorMessage("Elite Access Restricted: A valid PAID project API key is required for 1K/2K/4K visualization.");
+        setHasKey(false); // Force the "Elite Access Required" component to show
+      } else {
+        setErrorMessage("The digital artisans were unable to manifest this vision. Please try a different description.");
       }
     } finally {
       setIsLoading(false);
@@ -82,9 +103,10 @@ const Gallery: React.FC = () => {
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
           </div>
           <h2 className="text-3xl text-white serif mb-4">Elite Access Required</h2>
-          <p className="text-white/50 text-sm mb-10 leading-relaxed uppercase tracking-widest font-light">
-            High-fidelity visualization (2K/4K) requires a personal API key from a paid project.
+          <p className="text-white/50 text-sm mb-4 leading-relaxed uppercase tracking-widest font-light">
+            High-fidelity visualization (1K/2K/4K) requires a personal API key from a <span className="text-[#C5A059] font-bold">paid GCP project</span>.
           </p>
+          {errorMessage && <p className="text-red-400 text-[10px] mb-6 font-bold uppercase tracking-tighter">{errorMessage}</p>}
           <button 
             onClick={handleSelectKey}
             className="w-full py-4 bg-[#C5A059] text-[#002B2B] rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#C5A059]/20"
@@ -94,6 +116,7 @@ const Gallery: React.FC = () => {
           <a 
             href="https://ai.google.dev/gemini-api/docs/billing" 
             target="_blank" 
+            rel="noopener noreferrer"
             className="block mt-6 text-[#C5A059] text-[10px] uppercase font-bold tracking-widest hover:underline"
           >
             Learn about Billing
@@ -110,7 +133,7 @@ const Gallery: React.FC = () => {
           <span className="text-[#C5A059] text-xs font-bold tracking-[0.3em] uppercase mb-4 block">The Digital Atelier</span>
           <h1 className="text-6xl text-white serif mb-6">Manifesting <span className="italic font-light">Grandeur.</span></h1>
           <p className="text-white/50 text-lg max-w-2xl mx-auto font-light">
-            Experience the pinnacle of AI visualization. Describe your dream FVG landscape and generate high-fidelity 2K or 4K masterpieces.
+            Experience the pinnacle of AI visualization. Describe your dream FVG landscape and generate high-fidelity masterpieces.
           </p>
         </header>
 
@@ -131,6 +154,7 @@ const Gallery: React.FC = () => {
                     placeholder="Describe an aristocratic FVG scene..."
                     className="w-full bg-white/5 border border-white/10 rounded-full px-8 py-5 text-lg focus:outline-none focus:border-[#C5A059] transition-all text-white placeholder:text-white/20"
                   />
+                  {errorMessage && <p className="text-red-400 text-[10px] uppercase tracking-widest mt-2 ml-4 font-bold">{errorMessage}</p>}
                 </div>
 
                 <div className="w-full md:w-48 space-y-4">
@@ -204,7 +228,7 @@ const Gallery: React.FC = () => {
         </section>
 
         {/* Generated Works */}
-        <section>
+        <section className="mb-24">
           <div className="columns-1 md:columns-2 gap-12 space-y-12">
             <AnimatePresence>
               {isLoading && (
@@ -248,12 +272,56 @@ const Gallery: React.FC = () => {
           </div>
           
           {images.length === 0 && !isLoading && (
-            <div className="text-center py-48 opacity-10">
+            <div className="text-center py-24 opacity-10">
               <svg className="w-32 h-32 mx-auto mb-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               <h2 className="text-4xl serif italic mb-4">The Atelier is Empty</h2>
               <p className="text-sm uppercase tracking-[0.5em] font-bold">Dream it. Manifest it.</p>
             </div>
           )}
+        </section>
+
+        {/* Asset Library Section */}
+        <section className="mt-32 border-t border-white/10 pt-24">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="max-w-xl">
+              <span className="text-[#C5A059] text-[10px] font-bold tracking-[0.4em] uppercase mb-4 block">Asset Management</span>
+              <h2 className="text-4xl text-white serif mb-4 italic">Organizzazione <span className="not-italic text-[#C5A059]">Asset Multimediali.</span></h2>
+              <p className="text-white/40 text-sm font-light leading-relaxed">
+                Structured inventory for high-fidelity regional visual assets.
+              </p>
+            </div>
+          </div>
+
+          <div className="glass rounded-[40px] border border-white/5 overflow-hidden shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="bg-white/5 text-[#C5A059] border-b border-white/10">
+                    <th className="px-8 py-6 uppercase tracking-widest text-[10px] font-bold">اسم الملف (File Name)</th>
+                    <th className="px-8 py-6 uppercase tracking-widest text-[10px] font-bold">الوصف (Caption)</th>
+                    <th className="px-8 py-6 uppercase tracking-widest text-[10px] font-bold">الكلمات المفتاحية (Keywords)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {ASSET_LIBRARY.map((asset, i) => (
+                    <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-8 py-6 text-white/90 font-medium font-mono text-[11px]">{asset.fileName}</td>
+                      <td className="px-8 py-6 text-white/60 italic font-light leading-relaxed">{asset.caption}</td>
+                      <td className="px-8 py-6">
+                        <div className="flex flex-wrap gap-2">
+                          {asset.keywords.split(', ').map((tag, j) => (
+                            <span key={j} className="px-2 py-1 bg-[#C5A059]/10 text-[#C5A059] text-[9px] uppercase tracking-tighter rounded border border-[#C5A059]/20 font-bold">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
       </div>
     </div>

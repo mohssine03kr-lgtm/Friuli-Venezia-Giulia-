@@ -70,8 +70,9 @@ export const chatWithConcierge = async (message: string, location?: { lat: numbe
 /**
  * Elite Italian Travel Guide using 'gemini-3-pro-preview'.
  * Specialized in the "Dolce Vita" knowledge base for deep travel planning.
+ * Supports 'Thinking Mode' for complex reasoning.
  */
-export const askEliteGuide = async (message: string, history: { role: 'user' | 'model', content: string }[]) => {
+export const askEliteGuide = async (message: string, history: { role: 'user' | 'model', content: string }[], useThinking: boolean = false) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const chat = ai.chats.create({
@@ -95,10 +96,29 @@ export const askEliteGuide = async (message: string, history: { role: 'user' | '
       - Gastronomy: Bologna for authentic ragù; Parma for Prosciutto and Verdi's heritage.
       
       TONE: Use words like "cristallino", "panoramico", "barocco", "aristocratico". Always emphasize elegance and luxury details.`,
+      thinkingConfig: useThinking ? { thinkingBudget: 32768 } : undefined,
     }
   });
 
   const response = await chat.sendMessage({ message });
+  return response.text || "";
+};
+
+/**
+ * Low-latency Swift Guide using 'gemini-flash-lite-latest'.
+ * Optimized for rapid, snappy responses to common travel queries.
+ */
+export const askFastGuide = async (message: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-flash-lite-latest',
+    contents: message,
+    config: {
+      systemInstruction: `You are the 'Swift Guide' for the FVG Luxury Portal. 
+      Provide rapid, concise, and aristocratic travel advice for Friuli-Venezia Giulia.
+      Responses should be helpful but extremely brief and elegant. Speed is the priority.`,
+    },
+  });
   return response.text || "";
 };
 

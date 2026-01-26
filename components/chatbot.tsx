@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { askEliteGuide } from '../services/geminiService';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { askEliteGuide, askFastGuide } from '../services/geminiService';
 import { ChatMessage } from '../types';
 
 const MotionDiv = motion.div as any;
@@ -11,13 +11,15 @@ const EliteChatbot: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [useThinking, setUseThinking] = useState(false);
+  const [useFast, setUseFast] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isLoading]);
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -29,7 +31,12 @@ const EliteChatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const result = await askEliteGuide(input, currentHistory);
+      let result;
+      if (useFast) {
+        result = await askFastGuide(input);
+      } else {
+        result = await askEliteGuide(input, currentHistory, useThinking);
+      }
       setMessages(prev => [...prev, { role: 'model', content: result }]);
     } catch (error) {
       setMessages(prev => [...prev, { role: 'model', content: "My sincere apologies. I am currently unavailable to guide you. Please try again in a moment." }]);
@@ -58,7 +65,11 @@ const EliteChatbot: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-[#C5A059] font-bold text-sm tracking-widest uppercase">The Elite Guide</h3>
-                  <p className="text-white/40 text-[9px] uppercase tracking-widest">Powered by Gemini Pro</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/40 text-[9px] uppercase tracking-widest">{useFast ? 'Fast Mode Lite' : 'Gemini Pro'}</span>
+                    {useThinking && !useFast && <span className="text-[8px] bg-[#C5A059]/20 text-[#C5A059] px-2 py-0.5 rounded-full border border-[#C5A059]/30 font-bold uppercase tracking-tighter animate-pulse">Deep Reasoning</span>}
+                    {useFast && <span className="text-[8px] bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-400/30 font-bold uppercase tracking-tighter">Ultra Low Latency</span>}
+                  </div>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white transition-colors">
@@ -72,7 +83,7 @@ const EliteChatbot: React.FC = () => {
                 <div className="text-center text-white/50 text-sm mt-10 space-y-4">
                   <p className="serif italic text-xl text-white">"La Dolce Vita awaits."</p>
                   <p className="text-[10px] uppercase tracking-[0.3em] leading-relaxed max-w-[200px] mx-auto">
-                    Ask me about the finest experiences across Italy.
+                    {useFast ? 'Swiftly navigating the finest experiences.' : 'Ask me about the finest experiences across Italy.'}
                   </p>
                 </div>
               )}
@@ -89,13 +100,64 @@ const EliteChatbot: React.FC = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                   <div className="bg-white/5 border border-white/10 p-5 rounded-[28px] rounded-tl-none flex items-center gap-2">
-                     <span className="w-1.5 h-1.5 bg-[#C5A059] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                     <span className="w-1.5 h-1.5 bg-[#C5A059] rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
-                     <span className="w-1.5 h-1.5 bg-[#C5A059] rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></span>
+                   <div className="bg-white/5 border border-white/10 p-5 rounded-[28px] rounded-tl-none flex flex-col gap-3">
+                     <div className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 ${useFast ? 'bg-amber-400' : 'bg-[#C5A059]'} rounded-full animate-bounce`} style={{ animationDelay: '0ms' }}></span>
+                        <span className={`w-1.5 h-1.5 ${useFast ? 'bg-amber-400' : 'bg-[#C5A059]'} rounded-full animate-bounce`} style={{ animationDelay: '200ms' }}></span>
+                        <span className={`w-1.5 h-1.5 ${useFast ? 'bg-amber-400' : 'bg-[#C5A059]'} rounded-full animate-bounce`} style={{ animationDelay: '400ms' }}></span>
+                     </div>
+                     {!useFast && useThinking && (
+                        <p className="text-[9px] uppercase tracking-[0.2em] text-[#C5A059]/60 font-bold italic animate-pulse">
+                          The Guide is reflecting deeply...
+                        </p>
+                     )}
+                     {useFast && (
+                        <p className="text-[9px] uppercase tracking-[0.2em] text-amber-400/60 font-bold italic">
+                          Instant delivery...
+                        </p>
+                     )}
                    </div>
                 </div>
               )}
+            </div>
+
+            {/* Controls Area */}
+            <div className="px-8 py-3 border-t border-white/5 bg-black/30 flex items-center justify-between gap-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={useFast} 
+                    onChange={() => {
+                      setUseFast(!useFast);
+                      if (!useFast) setUseThinking(false);
+                    }}
+                  />
+                  <div className={`w-8 h-4 rounded-full border transition-all ${useFast ? 'bg-amber-400 border-amber-400' : 'bg-white/5 border-white/20'}`}></div>
+                  <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${useFast ? 'left-4.5' : 'left-1'}`}></div>
+                </div>
+                <span className={`text-[8px] uppercase tracking-widest font-bold transition-colors ${useFast ? 'text-amber-400' : 'text-white/30 group-hover:text-white/50'}`}>
+                  Swift Mode
+                </span>
+              </label>
+
+              <label className={`flex items-center gap-2 cursor-pointer group ${useFast ? 'opacity-20 pointer-events-none' : ''}`}>
+                <div className="relative">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only" 
+                    checked={useThinking} 
+                    onChange={() => setUseThinking(!useThinking)}
+                    disabled={useFast}
+                  />
+                  <div className={`w-8 h-4 rounded-full border transition-all ${useThinking ? 'bg-[#C5A059] border-[#C5A059]' : 'bg-white/5 border-white/20'}`}></div>
+                  <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${useThinking ? 'left-4.5' : 'left-1'}`}></div>
+                </div>
+                <span className={`text-[8px] uppercase tracking-widest font-bold transition-colors ${useThinking ? 'text-[#C5A059]' : 'text-white/30 group-hover:text-white/50'}`}>
+                  Deep Insight
+                </span>
+              </label>
             </div>
 
             {/* Input Area */}
@@ -106,13 +168,13 @@ const EliteChatbot: React.FC = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Tell me about Venice..."
+                  placeholder={useFast ? "Rapid inquiry..." : (useThinking ? "Ponder a complex journey..." : "Tell me about Venice...")}
                   className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-4 text-sm focus:outline-none focus:border-[#C5A059] transition-all text-white placeholder:text-white/20"
                 />
                 <button 
                   onClick={handleSendMessage}
                   disabled={isLoading}
-                  className="w-12 h-12 bg-[#C5A059] rounded-full flex items-center justify-center text-[#002B2B] transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-lg shadow-[#C5A059]/20"
+                  className={`w-12 h-12 ${useFast ? 'bg-amber-400' : 'bg-[#C5A059]'} rounded-full flex items-center justify-center text-[#002B2B] transition-all hover:scale-105 active:scale-95 disabled:opacity-50 shadow-lg shadow-[#C5A059]/20`}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
