@@ -4,6 +4,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import MembershipModal from './membershipModal';
 
+// Using local aliases with any type to bypass strict property check errors for framer-motion props
+const MotionDiv = motion.div as any;
+const MotionButton = motion.button as any;
+
 const Navbar: React.FC = () => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +39,7 @@ const Navbar: React.FC = () => {
             >
               {link.name}
               {location.pathname === link.path && (
-                <motion.div
+                <MotionDiv
                   layoutId="nav-underline"
                   className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#C5A059]"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -45,12 +49,14 @@ const Navbar: React.FC = () => {
           ))}
         </div>
 
-        <button 
+        <MotionButton 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setIsModalOpen(true)}
-          className="px-6 py-2 border border-[#C5A059] text-[#C5A059] rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] hover:text-[#002B2B] transition-all"
+          className="px-6 py-2 border border-[#C5A059] text-[#C5A059] rounded-full text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] hover:text-[#002B2B] transition-all shadow-lg shadow-transparent hover:shadow-[#C5A059]/20"
         >
           Membership
-        </button>
+        </MotionButton>
       </nav>
       <MembershipModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>

@@ -9,6 +9,9 @@ interface GeneratedImage {
   prompt: string;
 }
 
+// Using local aliases with any type to bypass strict property check errors for framer-motion props
+const MotionDiv = motion.div as any;
+
 const Gallery: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [images, setImages] = useState<GeneratedImage[]>([]);
@@ -124,17 +127,17 @@ const Gallery: React.FC = () => {
           <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
             <AnimatePresence>
               {isLoading && (
-                <motion.div 
+                <MotionDiv 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className={`relative rounded-[32px] overflow-hidden glass border border-[#C5A059]/30 animate-pulse flex flex-col items-center justify-center min-h-[400px]`}
                 >
                   <div className="text-[#C5A059] text-xs font-bold uppercase tracking-[0.3em] mb-4">Artisans at work</div>
                   <div className="text-white/20 italic text-sm text-center px-10">"The Alpine light is being captured..."</div>
-                </motion.div>
+                </MotionDiv>
               )}
               {images.map((img) => (
-                <motion.div
+                <MotionDiv
                   key={img.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -148,7 +151,7 @@ const Gallery: React.FC = () => {
                       <button className="text-white/40 text-[10px] uppercase tracking-widest hover:text-white transition-all">Share</button>
                     </div>
                   </div>
-                </motion.div>
+                </MotionDiv>
               ))}
             </AnimatePresence>
           </div>

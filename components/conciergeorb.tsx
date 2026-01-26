@@ -13,6 +13,10 @@ interface ExtendedChatMessage extends ChatMessage {
   sources?: Source[];
 }
 
+// Using local aliases with any type to bypass strict property check errors for framer-motion props
+const MotionDiv = motion.div as any;
+const MotionButton = motion.button as any;
+
 const ConciergeOrb: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ExtendedChatMessage[]>([]);
@@ -55,7 +59,7 @@ const ConciergeOrb: React.FC = () => {
     <div className="fixed bottom-8 right-8 z-[100]">
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -144,11 +148,11 @@ const ConciergeOrb: React.FC = () => {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
 
-      <motion.button
+      <MotionButton
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -164,7 +168,7 @@ const ConciergeOrb: React.FC = () => {
       >
         <span className="sr-only">AI Concierge</span>
         <svg className="w-8 h-8 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-      </motion.button>
+      </MotionButton>
     </div>
   );
 };

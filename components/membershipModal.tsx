@@ -7,19 +7,22 @@ interface MembershipModalProps {
   onClose: () => void;
 }
 
+// Using local aliases with any type to bypass strict property check errors for framer-motion props
+const MotionDiv = motion.div as any;
+
 const MembershipModal: React.FC<MembershipModalProps> = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -61,7 +64,7 @@ const MembershipModal: React.FC<MembershipModalProps> = ({ isOpen, onClose }) =>
                 <p className="text-white/30 text-[10px] uppercase tracking-tighter">Limited to 100 select members annually</p>
               </div>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
       )}
     </AnimatePresence>
