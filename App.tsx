@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/navbar';
 import Footer from './components/footer';
 import ConciergeOrb from './components/conciergeorb';
+import EliteChatbot from './components/chatbot';
 import Home from './pages/home';
 import Discovery from './pages/discovery';
 import Destinations from './pages/destinations';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
 
         <Footer />
         <ConciergeOrb />
+        <EliteChatbot />
       </div>
     </Router>
   );
