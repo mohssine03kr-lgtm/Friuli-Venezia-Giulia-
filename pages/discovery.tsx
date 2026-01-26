@@ -1,92 +1,87 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
 const MotionDiv = motion.div as any;
 
-const CATEGORIES = [
+const ATTRACTIONS = [
   {
-    title: "Historical Cafès",
-    description: "The soul of Trieste. These are not just bars, but monuments to coffee culture.",
-    items: [
-      { name: "Caffè degli Specchi", desc: "The 'living room' of Trieste in Piazza Unità. Founded 1839.", location: "Piazza Unità d'Italia, 7, Trieste" },
-      { name: "Caffè Tommaseo", desc: "The oldest café in Trieste (1830). Elegant Belgian mirrors.", location: "Piazza Tommaseo, 4/c, Trieste" },
-      { name: "Caffè San Marco", desc: "Iconic literary café with a Secessionist style bookstore.", location: "Via Cesare Battisti, 18, Trieste" }
-    ]
+    name: "Miramare Castle",
+    city: "Trieste",
+    desc: "The Archduke's dream on the cliffs. A white limestone castle jutting into the blue Adriatic, surrounded by botanical gardens.",
+    image: "https://images.unsplash.com/photo-1520175480921-4edfa0683001?auto=format&fit=crop&q=80&w=1200",
+    link: "Castello di Miramare"
   },
   {
-    title: "Fine Dining",
-    description: "Excellence where tradition meets innovation and design.",
-    items: [
-      { name: "L'Argine a Vencò", desc: "Chef Antonia Klugmann's Michelin star magic in the Collio vineyards.", location: "Località Vencò, Dolegna del Collio" },
-      { name: "Harry's Piccolo", desc: "2 Michelin stars at Grand Hotel Duchi d'Aosta. Absolute refinement.", location: "Piazza Unità d'Italia, 2, Trieste" },
-      { name: "Agli Amici dal 1887", desc: "Historical Udine landmark for modern Friulian cuisine.", location: "Via Via Noide, 34, Udine" }
-    ]
+    name: "Basilica of Aquileia",
+    city: "Aquileia",
+    desc: "A UNESCO heritage site featuring the largest early Christian floor mosaic in the Western world. A journey back to the Roman Empire.",
+    image: "https://images.unsplash.com/photo-1544013587-4142a461b4fa?auto=format&fit=crop&q=80&w=1200",
+    link: "Basilica di Aquileia"
   },
   {
-    title: "Luxury Shopping",
-    description: "From international designer brands to elegant boutique streets.",
-    items: [
-      { name: "Palmanova Designer Outlet", desc: "Open-air village with top international brands at elite prices.", location: "Aiello del Friuli" },
-      { name: "Via San Nicolò", desc: "The elegant shopping heart of Trieste. Boutique fashion and jewelry.", location: "Trieste Centro" },
-      { name: "TIARE Shopping", desc: "Modern and vast complex featuring exclusive retail experiences.", location: "Villesse" }
-    ]
+    name: "Loggia del Lionello",
+    city: "Udine",
+    desc: "The heart of Udine. A stunning Venetian Gothic loggia made of pink and white marble, echoing the Piazza San Marco.",
+    image: "https://images.unsplash.com/photo-1541811655610-184568600c24?auto=format&fit=crop&q=80&w=1200",
+    link: "Loggia del Lionello Udine"
   }
 ];
 
 const Discovery: React.FC = () => {
   const openConcierge = (query: string) => {
-    window.dispatchEvent(new CustomEvent('open-concierge', { detail: { message: `Alessandro, tell me about ${query}. Is it open now and what are the reviews?` } }));
+    window.dispatchEvent(new CustomEvent('open-concierge', { 
+      detail: { message: `Alessandro, tell me more about ${query}. I want to know about opening hours and the best time of day to visit.` } 
+    }));
   };
 
   return (
     <div className="pt-32 pb-24 px-8 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-24">
-          <span className="text-[#C5A059] text-xs font-bold tracking-[0.5em] uppercase mb-6 block">Elite Selection</span>
-          <h1 className="text-6xl md:text-8xl text-white serif mb-8">Alessandro’s <br/><span className="italic font-light">Curated Favorites.</span></h1>
-          <p className="text-white/50 text-xl max-w-2xl font-light leading-relaxed">
-            A guide to the finest historical establishments and modern luxuries of Friuli-Venezia Giulia, verified for the discerning traveler.
+        <header className="mb-24 text-center">
+          <span className="text-[#C5A059] text-xs font-bold tracking-[0.5em] uppercase mb-6 block">Curated Discovery</span>
+          <h1 className="text-6xl md:text-8xl text-white serif mb-8 italic">The Hidden <span className="not-italic font-bold text-[#C5A059]">Treasures.</span></h1>
+          <p className="text-white/40 text-xl max-w-3xl mx-auto font-light leading-relaxed">
+            Beyond the famous vistas lie centuries of history. We have curated the region's most profound architectural and cultural landmarks.
           </p>
         </header>
 
-        <div className="space-y-32">
-          {CATEGORIES.map((cat, idx) => (
-            <section key={idx}>
-              <div className="flex flex-col md:flex-row justify-between items-baseline mb-12 border-b border-white/10 pb-8">
-                <h2 className="text-4xl text-white serif italic">{cat.title}</h2>
-                <p className="text-white/40 text-sm mt-4 md:mt-0 font-light">{cat.description}</p>
+        <div className="space-y-40">
+          {ATTRACTIONS.map((attr, idx) => (
+            <MotionDiv 
+              key={idx}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+              className={`flex flex-col ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-20 items-center`}
+            >
+              <div className="w-full lg:w-1/2 group relative">
+                <div className="absolute -inset-4 border border-[#C5A059]/20 rounded-[60px] translate-x-4 translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700" />
+                <div className="relative h-[600px] rounded-[50px] overflow-hidden shadow-2xl">
+                  <img src={attr.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={attr.name} />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {cat.items.map((item, i) => (
-                  <MotionDiv
-                    key={i}
-                    whileHover={{ y: -10 }}
-                    className="glass p-8 rounded-[40px] border border-white/5 flex flex-col justify-between group h-full"
+              <div className="w-full lg:w-1/2">
+                <span className="text-[#C5A059] text-xs font-bold tracking-[0.4em] uppercase mb-6 block">{attr.city}</span>
+                <h2 className="text-5xl text-white serif mb-8">{attr.name}</h2>
+                <p className="text-white/60 text-lg leading-relaxed mb-12 font-light">
+                  {attr.desc}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <button 
+                    onClick={() => openConcierge(attr.link)}
+                    className="px-12 py-5 bg-[#C5A059] text-[#002B2B] rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-[#C5A059]/20"
                   >
-                    <div>
-                      <div className="w-12 h-12 rounded-2xl bg-[#C5A059]/10 flex items-center justify-center text-[#C5A059] mb-8 group-hover:bg-[#C5A059] group-hover:text-[#002B2B] transition-all">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        </svg>
-                      </div>
-                      <h3 className="text-2xl text-white serif mb-4">{item.name}</h3>
-                      <p className="text-white/50 text-sm font-light leading-relaxed mb-6">{item.desc}</p>
-                    </div>
-                    
-                    <div className="mt-auto">
-                      <p className="text-[10px] text-white/30 uppercase tracking-widest mb-6 font-bold">{item.location}</p>
-                      <button 
-                        onClick={() => openConcierge(item.name)}
-                        className="w-full py-4 border border-[#C5A059]/30 text-[#C5A059] rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-[#C5A059] hover:text-[#002B2B] transition-all"
-                      >
-                        Consult Alessandro
-                      </button>
-                    </div>
-                  </MotionDiv>
-                ))}
+                    Inquire for Private Tour
+                  </button>
+                  <button className="px-12 py-5 border border-white/10 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
+                    Virtual Atlas
+                  </button>
+                </div>
               </div>
-            </section>
+            </MotionDiv>
           ))}
         </div>
       </div>
