@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -6,6 +5,7 @@ import Navbar from './components/navbar';
 import Footer from './components/footer';
 import ConciergeOrb from './components/conciergeorb';
 import Home from './pages/home';
+import Discovery from './pages/discovery';
 import Destinations from './pages/destinations';
 import Gastronomy from './pages/gastronomy';
 import Gallery from './pages/gallery';
@@ -41,6 +41,7 @@ const App: React.FC = () => {
         <main>
           <Routes>
             <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
+            <Route path="/discovery" element={<PageWrapper><Discovery /></PageWrapper>} />
             <Route path="/destinations" element={<PageWrapper><Destinations /></PageWrapper>} />
             <Route path="/gastronomy" element={<PageWrapper><Gastronomy /></PageWrapper>} />
             <Route path="/gallery" element={<PageWrapper><Gallery /></PageWrapper>} />

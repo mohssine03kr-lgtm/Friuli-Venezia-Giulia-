@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -13,6 +12,7 @@ const Navbar: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const links = [
     { name: 'Home', path: '/' },
+    { name: 'Discovery', path: '/discovery' },
     { name: 'Destinations', path: '/destinations' },
     { name: 'Gastronomy', path: '/gastronomy' },
     { name: 'Gallery', path: '/gallery' },
